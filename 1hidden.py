@@ -1,3 +1,9 @@
+from pybrain.datasets            import ClassificationDataSet
+from pybrain.utilities           import percentError
+from pybrain.tools.shortcuts     import buildNetwork
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure.modules   import SoftmaxLayer
+
 from pybrain.structure import FeedForwardNetwork
 n = FeedForwardNetwork()
 from pybrain.structure import LinearLayer, SigmoidLayer, SoftmaxLayer
@@ -18,41 +24,46 @@ n.addConnection(FullConnection(hiddenLayer1, outLayer))
 n.addConnection(FullConnection(hiddenLayer2, outLayer))
 n.sortModules()
 
-from pybrain.datasets import SupervisedDataSet
-ds = SupervisedDataSet(4, 1)
+#from pybrain.datasets import SupervisedDataSet
+#alldata = SupervisedDataSet(64, 1)
+#alldata.addSample((0, 0, 0, 0), (0,))
+from pybrain.datasets import ClassificationDataSet
+alldata = ClassificationDataSet(64,1, nb_classes=10)
 
+f = open('digits.data', 'r')
+#for x in range(1, 3800):
+for x in range(1, 1500):
+    line = f.readline()
+    splits = line.split(',')
+    result = splits[64]
+    features = splits[:64];
+    #print features,"count ",len(features),"result ",result
+    alldata.addSample(features, result)
 
-ds.addSample((0, 0, 0, 0), (0,))
-ds.addSample((0, 0, 1, 1), (1,))
-ds.addSample((0, 0, 0, 1), (0,))
-ds.addSample((0, 1, 1, 0), (1,))
+tstdata, trndata = alldata.splitWithProportion(0.25)
 
-print "Before training"
+trndata._convertToOneOfMany()
+tstdata._convertToOneOfMany()
 
-sq_err = []
-for data in ds:
-    input_entry = data[0]
-    output_entry = data[1]
-    pred_entry = n.activate(input_entry)
-    print 'Actual:', output_entry, 'Predicted', pred_entry
+#Build network with 20 neurons on each of 1 hidden layers
+#fnn = buildNetwork(trndata.indim, 20, trndata.outdim, outclass=SoftmaxLayer)
+#Without hidden layer
+fnn = buildNetwork(trndata.indim, 20,trndata.outdim, outclass=SoftmaxLayer)
 
-    sq_err.append((pred_entry[0] - output_entry[0])**2)
-print "RMSE: %.2f" % (sum(sq_err) / len(sq_err))
+trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
+#trainer = BackpropTrainer(n, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
+#trainer = BackpropTrainer(n, trndata)
+#trainer.trainUntilConvergence()
 
+#Train network for 5 epochs
+trainer.trainEpochs(5)
 
-from pybrain.supervised.trainers import BackpropTrainer
-trainer = BackpropTrainer(n, ds)
-trainer.trainUntilConvergence()
+trnresult = percentError( trainer.testOnClassData(),
+                              trndata['class'] )
 
-print ""
+tstresult = percentError( trainer.testOnClassData(
+           dataset=tstdata ), tstdata['class'] )
 
-print "After training"
-
-sq_err = []
-for data in ds:
-    input_entry = data[0]
-    output_entry = data[1]
-    print 'Actual:', output_entry, 'Predicted', n.activate(input_entry)
-
-    sq_err.append((pred_entry[0] - output_entry[0])**2)
-print "RMSE: %.2f" % (sum(sq_err) / len(sq_err))
+print "epoch: %4d" % trainer.totalepochs, \
+          "  train error: %5.2f%%" % trnresult, \
+          "  test error: %5.2f%%" % tstresult

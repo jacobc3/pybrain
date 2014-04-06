@@ -3,7 +3,7 @@ from pybrain.utilities           import percentError
 from pybrain.tools.shortcuts     import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules   import SoftmaxLayer
-'''
+
 from pybrain.structure import FeedForwardNetwork
 n = FeedForwardNetwork()
 from pybrain.structure import LinearLayer, SigmoidLayer, SoftmaxLayer
@@ -23,7 +23,7 @@ n.addConnection(FullConnection(inLayer2, hiddenLayer2))
 n.addConnection(FullConnection(hiddenLayer1, outLayer))
 n.addConnection(FullConnection(hiddenLayer2, outLayer))
 n.sortModules()
-'''
+
 #from pybrain.datasets import SupervisedDataSet
 #alldata = SupervisedDataSet(64, 1)
 #alldata.addSample((0, 0, 0, 0), (0,))
@@ -31,7 +31,8 @@ from pybrain.datasets import ClassificationDataSet
 alldata = ClassificationDataSet(64,1, nb_classes=10)
 
 f = open('digits.data', 'r')
-for x in range(1, 1000):
+#for x in range(1, 3800):
+for x in range(1, 1500):
     line = f.readline()
     splits = line.split(',')
     result = splits[64]
@@ -45,11 +46,14 @@ trndata._convertToOneOfMany()
 tstdata._convertToOneOfMany()
 
 #Build network with 20 neurons on each of 1 hidden layers
-fnn = buildNetwork(trndata.indim, 20, trndata.outdim, outclass=SoftmaxLayer)
+#fnn = buildNetwork(trndata.indim, 20, trndata.outdim, outclass=SoftmaxLayer)
 #Without hidden layer
-#fnn = buildNetwork(trndata.indim, trndata.outdim, outclass=SoftmaxLayer)
+fnn = buildNetwork(trndata.indim, trndata.outdim, outclass=SoftmaxLayer)
 
 trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
+#trainer = BackpropTrainer(n, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
+#trainer = BackpropTrainer(n, trndata)
+#trainer.trainUntilConvergence()
 
 #Train network for 5 epochs
 trainer.trainEpochs(5)
@@ -65,7 +69,7 @@ print "epoch: %4d" % trainer.totalepochs, \
           "  test error: %5.2f%%" % tstresult
 '''
 print "Before training"
-
+3
 sq_err = []
 for data in ds:
     input_entry = data[0]
