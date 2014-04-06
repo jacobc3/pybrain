@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-__author__ = 'Justin S Bayer, bayer.justin@googlemail.com'
+__author__ = 'Sephy Zhou, jacobc3@gmail.com'
 
 
 from setuptools import setup, find_packages
