@@ -48,6 +48,7 @@ tstdata._convertToOneOfMany()
 #Build network with 20 neurons on each of 1 hidden layers
 #fnn = buildNetwork(trndata.indim, 20, trndata.outdim, outclass=SoftmaxLayer)
 #Without hidden layer
+print "in Dimension:",trndata.indim,"\nOut Dimension:",trndata.outdim
 fnn = buildNetwork(trndata.indim, trndata.outdim, outclass=SoftmaxLayer)
 
 trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)

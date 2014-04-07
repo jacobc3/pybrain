@@ -31,8 +31,8 @@ from pybrain.datasets import ClassificationDataSet
 alldata = ClassificationDataSet(64,1, nb_classes=10)
 
 f = open('digits.data', 'r')
-#for x in range(1, 3800):
-for x in range(1, 1500):
+for x in range(1, 3800):
+#for x in range(1, 1500):
     line = f.readline()
     splits = line.split(',')
     result = splits[64]
