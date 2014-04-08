@@ -16,7 +16,7 @@ for i in range(64):
     inLayers[i] = LinearLayer(1) 
 
 for i in range(16):
-    hiddenLayer_a[i] = SigmoidLayer(1)    
+    hiddenLayer_a[i] = SigmoidLayer(20)   
 '''
 for i in range(4):
     hiddenLayer_b[i] = SigmoidLayer(1)
@@ -29,6 +29,9 @@ for i in range(64):
 for i in range(16):
     n.addModule(hiddenLayer_a[i])
 
+hiddenLayer_c = SigmoidLayer(100)
+n.addModule(hiddenLayer_c)
+
 '''
 for i in range(4):
     n.addModule(hiddenLayer_b[i])
@@ -40,12 +43,11 @@ n.addOutputModule(outLayer)
 from pybrain.structure import FullConnection
 for i in range(4):
     for j in range(4):
+        print (j*2+i*16),(i*4+j)
         n.addConnection(FullConnection(inLayers[j*2+i*16], hiddenLayer_a[i*4+j]))
         n.addConnection(FullConnection(inLayers[j*2+i*16+1], hiddenLayer_a[i*4+j]))
         n.addConnection(FullConnection(inLayers[j*2+i*16+8], hiddenLayer_a[i*4+j]))
         n.addConnection(FullConnection(inLayers[j*2+i*16+9], hiddenLayer_a[i*4+j]))
-
-hiddenLayer_c = SigmoidLayer(30)
 
 for i in range(16):
     n.addConnection(FullConnection(hiddenLayer_a[i], hiddenLayer_c))
@@ -63,7 +65,7 @@ for i in range(2):
 for i in range(4):
     n.addConnection(FullConnection(hiddenLayer_b[i], outLayer))
 '''
-#n.sortModules()
+n.sortModules()
 
 #from pybrain.datasets import SupervisedDataSet
 #alldata = SupervisedDataSet(64, 1)
@@ -90,7 +92,7 @@ tstdata._convertToOneOfMany()
 #Build network with 20 neurons on each of 1 hidden layers
 #fnn = buildNetwork(trndata.indim, 20, trndata.outdim, outclass=SoftmaxLayer)
 #Without hidden layer
-fnn = buildNetwork(trndata.indim, 64,32,trndata.outdim, outclass=SoftmaxLayer)
+#fnn = buildNetwork(trndata.indim, 64,32,trndata.outdim, outclass=SoftmaxLayer)
 #fnn = buildNetwork(trndata.indim, 50,trndata.outdim, outclass=SoftmaxLayer)
 #trainer = BackpropTrainer(fnn, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
 trainer = BackpropTrainer(n, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
@@ -98,7 +100,7 @@ trainer = BackpropTrainer(n, dataset=trndata, momentum=0.1, verbose=True, weight
 #trainer.trainUntilConvergence()
 
 #Train network for 5 epochs
-trainer.trainEpochs(50)
+trainer.trainEpochs(15)
 
 trnresult = percentError( trainer.testOnClassData(),
                               trndata['class'] )
